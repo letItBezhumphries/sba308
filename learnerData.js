@@ -1,11 +1,11 @@
 // The provided course information.
-const CourseInfo = {
+const courseInfo = {
   id: 451,
   name: 'Introduction to JavaScript',
 };
 
 // The provided assignment group.
-const AssignmentGroup = {
+const assignmentGroup = {
   id: 12345,
   name: 'Fundamentals of JavaScript',
   course_id: 451,
@@ -26,14 +26,14 @@ const AssignmentGroup = {
     {
       id: 3,
       name: 'Code the World',
-      due_at: '3156-11-15',
+      due_at: '3156-11-15', //"2023-01-25",
       points_possible: 500,
     },
   ],
 };
 
 // The provided learner submission data.
-const LearnerSubmissions = [
+const learnerSubmissions = [
   {
     learner_id: 125,
     assignment_id: 1,
@@ -76,4 +76,4 @@ const LearnerSubmissions = [
   },
 ];
 
-module.exports = { LearnerSubmissions, AssignmentGroup, CourseInfo };
+module.exports = { learnerSubmissions, assignmentGroup, courseInfo };
