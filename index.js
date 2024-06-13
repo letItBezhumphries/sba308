@@ -4,22 +4,18 @@ const {
   courseInfo,
 } = require('./learnerData.js');
 
-// console.log(
-//   'courseInfo',
-//   courseInfo,
-//   '\nassignmentGroup:',
-//   assignmentGroup,
-//   '\nlearnerSubmissions:',
-//   learnerSubmissions
-// );
+function checkValidCourseId(course, assignmentObj) {
+  const { course_id } = assignmentObj;
 
-function checkValidCourseId(assignmentObj, course) {
-  const { id, name, course_id, group_weight, assignments } = assignmentObj;
-
-  if (course.id !== course_id) {
-    throw new Error({
-      message: 'Input is Invalid',
-    });
+  try {
+    if (course.id === course_id) {
+      return true;
+    } else {
+      err = new Error('This assignment groupd does not belong to this course');
+      return err;
+    }
+  } catch (error) {
+    console.error(err);
   }
 }
 
@@ -48,6 +44,8 @@ const getLearnerIds = function (submissions) {
   for (let i = 0; i < submissions.length; i++) {
     if (!learnerIds[submissions[i].learner_id]) {
       learnerIds[submissions[i].learner_id] = true;
+    } else {
+      continue;
     }
   }
   return Object.keys(learnerIds);
@@ -55,33 +53,7 @@ const getLearnerIds = function (submissions) {
 
 // helper function that accepts a learner id and the submissions array
 // and returns an array of the submissions made by a learner that should be counted as part of their grade
-
-// const getLearnerSubmissionsToGrade = function (submissions, learnerId) {
-//   const results = submissions.filter((submission) => {
-//     let { assignment_id } = submission;
-//     let matchingAssignment = getAssignmentById(
-//       assignment_id,
-//       assignmentGroup.assignments
-//     );
-//     if (
-//       submission.learner_id === learnerId &&
-//       isReadyToGrade(matchingAssignment.due_at)
-//     ) {
-//       return submission;
-//     }
-//   });
-
-//   if (!results.length) {
-//     return 'No submissions for the requested Learner';
-//   } else {
-//     return results;
-//   }
-// };
 const getLearnerSubmissionsToGrade = function (submissions, learnerId) {
-  console.log(
-    'in getLearnerSubmissionsToGrade -> learnerId:',
-    typeof learnerId
-  );
   const results = [];
   submissions.forEach((submission) => {
     let { assignment_id } = submission;
@@ -121,7 +93,6 @@ const populateLearnerObjects = function (submissions, learnerId, learnerObj) {
 
   learnerObj.id = learnerId;
   learnerObj.avg = 0;
-  console.log('submittedAssignments:', submittedAssignments);
   // loop over the submittedAssignments
   for (let i = 0; i < submittedAssignments.length; i++) {
     // destructure the properties expected for each assignment
@@ -129,8 +100,8 @@ const populateLearnerObjects = function (submissions, learnerId, learnerObj) {
 
     // tally the total possible points for each assignment
     totalPossiblePoints += assignment.points_possible;
-    // tally the total points earned for each submission passed to the adjust grade for late submission
 
+    // tally the total points earned for each submission passed to the adjust grade for late submission
     // store the adjusted score for tardy assignment
     let adjustedScore = adjustTardySubmissionScore(
       assignment,
@@ -151,15 +122,7 @@ const populateLearnerObjects = function (submissions, learnerId, learnerObj) {
     learnerObj[assignmentKey] = submissionScore.toFixed(2);
   }
 
-  console.log(
-    'totalPointsPossible:',
-    totalPossiblePoints,
-    'totalEarned:',
-    totalPointsEarned
-  );
-
   learnerObj.avg = totalPointsEarned / totalPossiblePoints;
-  console.log('learnerObj:', learnerObj);
 
   return learnerObj;
 };
@@ -188,7 +151,7 @@ const adjustTardySubmissionScore = function (assignmentObj, submissionObj) {
       return submission.score * 0.9;
     }
   } else {
-    console.log('this Assignment does not exist');
+    // console.log('this Assignment does not exist');
   }
 };
 
@@ -198,6 +161,10 @@ returns array of formatted learner objects populated with graded assignments and
 const getLearnerData = function (course, assignmentGp, submissions) {
   let result = [];
 
+  // check to make sure this course has been matched to the correct assignmentGp
+  let validCourse = checkValidCourseId(course, assignmentGp);
+
+  console.log('validCourse:', validCourse);
   // create variable to store the learnerIds
   const learnerIds = getLearnerIds(submissions);
 
@@ -209,6 +176,7 @@ const getLearnerData = function (course, assignmentGp, submissions) {
   }
 
   console.log('result:', result);
+  return result;
 };
 
 getLearnerData(courseInfo, assignmentGroup, learnerSubmissions);
