@@ -4,6 +4,14 @@ const {
   courseInfo,
 } = require('./learnerData.js');
 
+/* helper function that checks whether the assignmentGroup belongs to the course 
+  returns true if it does belong and false or the error if it doesnt
+*/
+/**
+ * @param {Object} course
+ * @param {Object} assignmentObj
+ * @returns true or the error
+ */
 function checkValidCourseId(course, assignmentObj) {
   const { course_id } = assignmentObj;
 
@@ -19,7 +27,15 @@ function checkValidCourseId(course, assignmentObj) {
   }
 }
 
-// helper function that accepts an assignment due_date and returns true if the assignment should be counted as part of a learners grade and false if it should not be counted
+/*
+ helper function that accepts an assignment due_date and returns true
+if the assignment should be counted as part of a learners grade and false if it should not be counted
+*/
+/**
+ *
+ * @param {String} dueDate
+ * @returns Boolean
+ */
 function isReadyToGrade(dueDate) {
   // storing the current date
   let todaysDate = new Date().toISOString().split('T')[0].split('-');
@@ -38,7 +54,14 @@ function isReadyToGrade(dueDate) {
     : false;
 }
 
-// helper function that accepts the submissions array and returns a list of unique learner ids
+/*
+helper function that accepts the submissions array and returns a list of unique learner ids
+*/
+/**
+ *
+ * @param {Array} submissions
+ * @returns Array
+ */
 const getLearnerIds = function (submissions) {
   const learnerIds = {};
   for (let i = 0; i < submissions.length; i++) {
@@ -51,8 +74,16 @@ const getLearnerIds = function (submissions) {
   return Object.keys(learnerIds);
 };
 
-// helper function that accepts a learner id and the submissions array
-// and returns an array of the submissions made by a learner that should be counted as part of their grade
+/*
+ helper function that accepts a learner id and the submissions array
+ and returns an array of the submissions made by a learner that should be counted as part of their grade
+*/
+/**
+ *
+ * @param {Array} submissions
+ * @param {Number} learnerId
+ * @returns Array || String
+ */
 const getLearnerSubmissionsToGrade = function (submissions, learnerId) {
   const results = [];
   submissions.forEach((submission) => {
@@ -79,9 +110,16 @@ const getLearnerSubmissionsToGrade = function (submissions, learnerId) {
   }
 };
 
-// helper function that accepts the submissions array and a learnerId and and a learnerObj 
-// and returns the learnerObj with the required avg and submissions ids populated
-
+/*
+helper function that accepts the submissions array and a learnerId and and a learnerObj and 
+returns the learnerObj with the required avg and submissions ids populated*/
+/**
+ *
+ * @param {Array} submissions
+ * @param {Number} learnerId
+ * @param {Object} learnerObj
+ * @returns Object
+ */
 const populateLearnerObjects = function (submissions, learnerId, learnerObj) {
   let totalPossiblePoints = 0;
   let totalPointsEarned = 0;
@@ -128,13 +166,31 @@ const populateLearnerObjects = function (submissions, learnerId, learnerObj) {
   return learnerObj;
 };
 
-// helper function that accepts an id and the assignments array and returns the assignment with that id
+/*
+helper function that accepts an id and the assignments array 
+and returns the assignment with that id
+*/
+/**
+ *
+ * @param {Number} id
+ * @param {Array} assignments
+ * @returns Array
+ */
+
 const getAssignmentById = function (id, assignments) {
   // console.log('id passed in:', id);
   return assignments.filter((assignment) => assignment.id === id)[0];
 };
 
-// accepts assignmentObj and submissionObj and checks if the submission date was late and adjusts and returns the adjusted score
+/*
+helper function accepts assignmentObj and submissionObj and checks if the submission date 
+was late and adjusts and returns the adjusted score */
+/**
+ *
+ * @param {Object} assignmentObj
+ * @param {Object} submissionObj
+ * @returns Number
+ */
 const adjustTardySubmissionScore = function (assignmentObj, submissionObj) {
   const { submission, assignment_id } = submissionObj;
   const { id, due_at } = assignmentObj;
@@ -152,13 +208,20 @@ const adjustTardySubmissionScore = function (assignmentObj, submissionObj) {
       return submission.score * 0.9;
     }
   } else {
-    // console.log('this Assignment does not exist');
+    console.log('this Assignment does not exist');
   }
 };
 
 /*
-returns array of formatted learner objects populated with graded assignments and a grade average
-**/
+function returns array of formatted learner objects populated with graded assignments and a grade average
+*/
+/**
+ *
+ * @param {Object} course
+ * @param {Object} assignmentGp
+ * @param {Array} submissions
+ * @returns Array
+ */
 const getLearnerData = function (course, assignmentGp, submissions) {
   let result = [];
 
@@ -166,18 +229,25 @@ const getLearnerData = function (course, assignmentGp, submissions) {
   let validCourse = checkValidCourseId(course, assignmentGp);
 
   console.log('validCourse:', validCourse);
-  // create variable to store the learnerIds
-  const learnerIds = getLearnerIds(submissions);
 
-  // loop over each learner id from the above list
-  for (let i = 0; i < learnerIds.length; i++) {
-    result.push(
-      populateLearnerObjects(submissions, parseInt(learnerIds[i]), {})
-    );
+  if (validCourse) {
+    // create variable to store the learnerIds
+    const learnerIds = getLearnerIds(submissions);
+
+    // loop over each learner id from the above list
+    for (let i = 0; i < learnerIds.length; i++) {
+      result.push(
+        populateLearnerObjects(submissions, parseInt(learnerIds[i]), {})
+      );
+    }
+
+    // console.log('result:', result);
+    return result;
+  } else {
+    throw Error({
+      message: 'This Course is not valid!',
+    });
   }
-
-  console.log('result:', result);
-  return result;
 };
 
-getLearnerData(courseInfo, assignmentGroup, learnerSubmissions);
+console.log(getLearnerData(courseInfo, assignmentGroup, learnerSubmissions));
