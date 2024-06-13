@@ -79,8 +79,9 @@ const getLearnerSubmissionsToGrade = function (submissions, learnerId) {
   }
 };
 
-// helper function that accepts the submissions array and a learnerId and returns
-// the avg for the learner
+// helper function that accepts the submissions array and a learnerId and and a learnerObj 
+// and returns the learnerObj with the required avg and submissions ids populated
+
 const populateLearnerObjects = function (submissions, learnerId, learnerObj) {
   let totalPossiblePoints = 0;
   let totalPointsEarned = 0;
